@@ -3,6 +3,7 @@
 #include<stdlib.h>
 #include<locale.h>
 #include<math.h>
+#define EPS 1e-9
 
 /**
  * @brief считывает значение,
@@ -44,13 +45,13 @@ double getValue() {
 }
 
 double getFunctionY(const double x, const double a) {
-    if (x < 1) {
+    if (x < 1.0 - EPS) {
         return 1;
     }
-    else if (1 <= x <= 2) {
+    else if (x > 1.0 - EPS && x < 2.0 + EPS) {
         return a * pow(x, 2 * log(x));
     }
-    else if (x > 2) {
+    else {
         return exp(a * x) * cos(x);
     }
 }
