@@ -2,6 +2,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<locale.h>
+#include<float.h>
 
 /**
  * @brief считывает значение,
@@ -74,11 +75,11 @@ double getValue() {
 }
 
 double getProhod(const double a, const double b, const double r, const double s) {
-    return ((a <= r && b <= s) || (a <= s && b <= r));
+    return ((a <= r - DBL_EPSILON && b <= s - DBL_EPSILON) || (a <= s - DBL_EPSILON && b <= r - DBL_EPSILON));
 }
 
 void ChekValue(const double value) {
-    if (value <= 0)
+    if (value <= 0 - DBL_EPSILON)
     {
         printf("Value have to be positive\n");
         abort();
