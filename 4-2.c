@@ -1,13 +1,30 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
+#include<time.h>
 #include<locale.h>
+
+/*
+* @brief проверяет k
+* @param k - параметр k
+* @return завершает программу, чтобы она не продолжала с неккоректным k
+*/
+void CheckK(int k);
+
+/**
+* @brief проверяет на NULL pointer
+* @param ptr - указатель
+* @param fName - имя функции
+* @param pName - имя параметра
+* @return выводит ошибку если указатель равен NULL и немедленно завершает программу
+*/
+void CheckNullPointer(const void* ptr, const char* fName, const char* pName);
 
 /**
  * @brief Ввод данных типа int
  * @return Введенное значение
  */
-int Value();
+int Value(void);
 
 /*
 * @brief ввод размера массива
@@ -36,9 +53,11 @@ void printArray(int* arr, const size_t size);
 * @brief случайное заполнение массива
 * @param arr - указатель на массив, который нужно заполнить
 * @param size - количество элементов массива
+* @param start - начало диапазона массива
+* @param end - конец диапазона массива
 * @return создает случайный массив
 */
-void fillRandom(int* arr, const size_t size);
+void fillRandom(int* arr, const size_t size, int start, int end);
 
 /*
 * @brief заменяет первый отрицательный элемент массива на максимальный по модулю элемент
@@ -66,7 +85,11 @@ void insertKBeforeAndAfter(int** arr, size_t* size, int K);
 */
 void formArrayA(const int* D, int* A, const size_t size);
 
-enum { RANDOM = 1, MANUAL };
+/**
+* @param RANDOM - значение 1, случайное заполнение числами в заданном диапазоне
+* @param MANUAL - значение 2, ручной ввод элементов массива с клавиатуры
+*/
+enum { RANDOM = 1, MANUAL = 2 };
 
 /**
  * @brief Точка входа в программу
@@ -78,21 +101,23 @@ enum { RANDOM = 1, MANUAL };
  */
 int main()
 {
+    srand((unsigned)time(NULL));
+
     setlocale(LC_ALL, "Russian");
     size_t size = getSize("Введите размер массива:  ");
     int* arr = malloc(size * sizeof(int));
-    if (arr == NULL)
-    {
-        printf("error");
-        exit(1);
-    }
+    CheckNullPointer(arr, "main", "arr");
     printf("Выберите способ заполнения массива:\n"
         "%d случайными числамиб %d вручную ", RANDOM, MANUAL);
     int choice = Value();
     switch (choice)
     {
     case RANDOM:
-        fillRandom(arr, size);
+        printf("Введите начало диапазона: ");
+        const int start = Value();
+        printf("Введите конец диапазона: ");
+        const int end = Value();
+        fillRandom(arr, size, start, end);
         break;
     case MANUAL:
         fillArray(arr, size);
@@ -113,6 +138,7 @@ int main()
     // 2) Вставить число K до и после всех элементов, заканчивающихся на цифру K
     printf("\nВведите число K: ");
     int K = Value();
+    CheckK(K);
     insertKBeforeAndAfter(&arr, &size, K);
     printf("\n2) После вставки K до и после элементов, оканчивающихся на цифру %d:\n", K);
     printArray(arr, size);
@@ -134,7 +160,23 @@ int main()
     return 0;
 }
 
-int Value()
+void CheckK(int k)
+{
+    if (k < 0) {
+        printf("Ошибка: значение k не может быть отрицательным\n");
+        exit(1);
+    }
+}
+
+void CheckNullPointer(const void* ptr, const char* fName, const char* pName)
+{
+    if (ptr == NULL) {
+        printf("Ошибка: NULL указатель передан в функцию %s (параметр: %s).\n", fName, pName);
+        exit(1);
+    }
+}
+
+int Value(void)
 {
     int value = 0;
     if (!scanf_s("%d", &value))
@@ -147,6 +189,7 @@ int Value()
 
 size_t getSize(char* message)
 {
+    CheckNullPointer(message, "getSize", "message");
     printf("%s", message);
     int value = Value();
     if (value <= 0)
@@ -159,24 +202,17 @@ size_t getSize(char* message)
 
 void fillArray(int* arr, const size_t size)
 {
+    CheckNullPointer(arr, "fillArray", "arr");
     for (size_t i = 0; i < size; i++)
     {
-        int value = 0;
-        do {
-            printf("Введите элемент [%zu] массива (от -15 до 15) = ", i);
-            value = Value();
-
-            if (value < -15 || value >15) {
-                printf("Ошибка: число должно быть в диапазоне (от -15 до 15)!\n");
-            }
-        } while (value < -15 || value >15);
-
-        arr[i] = value;
+        printf("Введите элемент [%zu] массива = ", i);
+        arr[i] = Value();
     }
 }
 
 void printArray(int* arr, const size_t size)
 {
+    CheckNullPointer(arr, "printArray", "arr");
     for (size_t i = 0; i < size; i++)
     {
         printf("%d ", arr[i]);
@@ -184,10 +220,9 @@ void printArray(int* arr, const size_t size)
     printf("\n ");
 }
 
-void fillRandom(int* arr, const size_t size)
+void fillRandom(int* arr, const size_t size, int start, int end)
 {
-    int start = -15;
-    int end = 15;
+    CheckNullPointer(arr, "fillRandom", "arr");
     for (size_t i = 0; i < size; i++)
     {
         arr[i] = (rand() % (end - start + 1)) + start;
@@ -196,6 +231,7 @@ void fillRandom(int* arr, const size_t size)
 
 void replaceFirstNegativeWithMaxAbs(int* arr, const size_t size)
 {
+    CheckNullPointer(arr, "replaceFirstNegativeWithMaxAbs", "arr");
     int maxAbs = abs(arr[0]);
     for (size_t i = 1; i < size; i++)
         if (abs(arr[i]) > maxAbs)
@@ -211,6 +247,7 @@ void replaceFirstNegativeWithMaxAbs(int* arr, const size_t size)
 
 void insertKBeforeAndAfter(int** arr, size_t* size, int K)
 {
+    CheckNullPointer(arr, "insertKBeforeAndAfter", "arr");
     size_t newSize = *size;
     long long count = 0;
 
@@ -257,6 +294,7 @@ void insertKBeforeAndAfter(int** arr, size_t* size, int K)
 
 void formArrayA(const int* D, int* A, const size_t size)
 {
+    CheckNullPointer(D, "formArrayA", "D");
     if (size == 0) {
         return;
     }
