@@ -1,20 +1,30 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
+#include<time.h>
 #include<locale.h>
+
+/**
+* @brief проверяет на NULL pointer
+* @param ptr - указатель
+* @param fName - имя функции 
+* @param pName - имя параметра
+* @return выводит ошибку если указатель равен NULL и немедленно завершает программу
+*/
+void CheckNullPointer(const void* ptr, const char* fName, const char* pName);
 
 /**
  * @brief Ввод данных типа int
  * @return Введенное значение
  */
-int Value();
+int Value(void);
 
 /*
 * @brief ввод размера массива
 * @param message - указатель на строку с сообщением, которое будет выведено на экран
 * @return выводит размер массива
 */
-size_t getSize(char* message);
+size_t getSize(const char* message);
 
 /*
 * @brief ручное заполнение массива
@@ -36,9 +46,11 @@ void printArray(int* arr, const size_t size);
 * @brief случайное заполнение массива
 * @param arr - указатель на массив, который нужно заполнить
 * @param size - количество элементов массива
+* @param start - начало диапазона массива
+* @param end - конец диапазона массива
 * @return создает случайный массив
 */
-void fillRandom(int* arr, const size_t size);
+void fillRandom(int* arr, const size_t size, int start, int end);
 
 /*
 * @brief находит произведения всех четных элементов
@@ -65,7 +77,11 @@ void replaceOddIndexElements(int* arr, const size_t size);
 */
 int PositiveDivisibleWithRemainder2(const int* arr, const size_t size, int k);
 
-enum { RANDOM = 1, MANUAL };
+/**
+* @param RANDOM - значение 1, случайное заполнение числами в заданном диапазоне
+* @param MANUAL - значение 2, ручной ввод элементов массива с клавиатуры
+*/
+enum { RANDOM = 1, MANUAL = 2 };
 
 /**
  * @brief Точка входа в программу
@@ -77,6 +93,8 @@ enum { RANDOM = 1, MANUAL };
  */
 int main()
 {
+    srand((unsigned)time(NULL));
+
     setlocale(LC_ALL, "Russian");
     size_t size = getSize("Введите размер массива:  ");
     int* arr = malloc(size * sizeof(int));
@@ -91,7 +109,11 @@ int main()
     switch (choice)
     {
     case RANDOM:
-        fillRandom(arr, size);
+        printf("Введите начало диапазона: ");
+        int start = Value();
+        printf("Введите конец диапазона: ");
+        int end = Value();
+        fillRandom(arr, size, start, end);
         break;
     case MANUAL:
         fillArray(arr, size);
@@ -127,7 +149,15 @@ int main()
     return 0;
 }
 
-int Value()
+void CheckNullPointer(const void* ptr, const char* fName, const char* pName)
+{
+    if (ptr == NULL) {
+        printf("Ошибка: NULL указатель передан в функцию %s (параметр: %s).\n", fName, pName);
+        exit(1);
+    }
+}
+
+int Value(void)
 {
     int value = 0;
     if (!scanf_s("%d", &value))
@@ -140,6 +170,7 @@ int Value()
 
 size_t getSize(char* message)
 {
+    CheckNullPointer(message, "getSize", "message");
     printf("%s", message);
     int value = Value();
     if (value <= 0)
@@ -152,6 +183,7 @@ size_t getSize(char* message)
 
 void fillArray(int* arr, const size_t size)
 {
+    CheckNullPointer(arr, "fillArray", "arr");
     for (size_t i = 0; i < size; i++)
     {
         int value = 0;
@@ -168,8 +200,9 @@ void fillArray(int* arr, const size_t size)
     }
 }
 
-void printArray(int* arr, const size_t size)
+void printArray(const int* arr, const size_t size)
 {
+    CheckNullPointer(arr, "printArray", "arr");
     for (size_t i = 0; i < size; i++)
     {
         printf("%d ", arr[i]);
@@ -177,10 +210,9 @@ void printArray(int* arr, const size_t size)
     printf("\n ");
 }
 
-void fillRandom(int* arr, const size_t size)
+void fillRandom(int* arr, const size_t size, int start, int end)
 {
-    int start = -15;
-    int end = 15;
+    CheckNullPointer(arr, "fillRandom", "arr");
     for (size_t i = 0; i < size; i++)
     {
         arr[i] = (rand() % (end - start + 1)) + start;
@@ -189,6 +221,7 @@ void fillRandom(int* arr, const size_t size)
 
 long long productEvenValues(const int* arr, const size_t size)
 {
+    CheckNullPointer(arr, "productEvenValues", "arr");
     long long prod = 1;
     int hasEven = 0;
     for (size_t i = 0; i < size; i++)
@@ -207,6 +240,7 @@ long long productEvenValues(const int* arr, const size_t size)
 
 void replaceOddIndexElements(int* arr, const size_t size)
 {
+    CheckNullPointer(arr, "replaceOddIndexElements", "arr");
     for (size_t i = 1; i < size; i += 2)
     {
         arr[i] = (int)(i * i);
@@ -215,11 +249,18 @@ void replaceOddIndexElements(int* arr, const size_t size)
 
 int PositiveDivisibleWithRemainder2(const int* arr, const size_t size, int k)
 {
+    CheckNullPointer(arr, "PositiveDivisibleWithRemainder2", "arr");
+    CheckNullPointer(k, "PositiveDivisibleWithRemainder2", "k");
+    int found = 0;
     for (size_t i = 0; i < size; i++)
     {
         if (arr[i] > 0 && arr[i] % k == 2) {
-            return 1;
+            printf("Подходящий элемент: arr[%zu] = %d\n", i, arr[i]);
+            ++found;
         }
     }
-    return 0;
+    if (!found) {
+        return 0;
+    }
+    return 1;
 }
