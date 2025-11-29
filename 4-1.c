@@ -4,6 +4,13 @@
 #include<time.h>
 #include<locale.h>
 
+/*
+* @brief проверяет k 
+* @param k - параметр k
+* @return завершает программу, чтобы она не продолжала с неккоректным k
+*/
+void CheckK(int k);
+
 /**
 * @brief проверяет на NULL pointer
 * @param ptr - указатель
@@ -98,11 +105,7 @@ int main()
     setlocale(LC_ALL, "Russian");
     size_t size = getSize("Введите размер массива:  ");
     int* arr = malloc(size * sizeof(int));
-    if (arr == NULL)
-    {
-        printf("error");
-        exit(1);
-    }
+    CheckNullPointer(arr, "main", "arr");
     printf("Выберите способ заполнения массива:\n"
         "%d случайными числамиб %d вручную ", RANDOM, MANUAL);
     int choice = Value();
@@ -110,9 +113,9 @@ int main()
     {
     case RANDOM:
         printf("Введите начало диапазона: ");
-        int start = Value();
+        const int start = Value();
         printf("Введите конец диапазона: ");
-        int end = Value();
+        const int end = Value();
         fillRandom(arr, size, start, end);
         break;
     case MANUAL:
@@ -138,6 +141,7 @@ int main()
     // 3. Проверка положительных элементов, делящихся на k с остатком 2
     printf("\nВведите число k: ");
     int k = Value();
+    CheckK(k);
     if (PositiveDivisibleWithRemainder2(arr, size, k)) {
         printf("\n3) Есть положительные элементы, делящиеся на %d с остатком 2.\n", k);
     }
@@ -147,6 +151,14 @@ int main()
 
     free(arr);
     return 0;
+}
+
+void CheckK(int k)
+{
+    if (k == 0) {
+        printf("Ошибка: значение k не может быть 0\n");
+        exit(1);
+    }
 }
 
 void CheckNullPointer(const void* ptr, const char* fName, const char* pName)
@@ -186,17 +198,8 @@ void fillArray(int* arr, const size_t size)
     CheckNullPointer(arr, "fillArray", "arr");
     for (size_t i = 0; i < size; i++)
     {
-        int value = 0;
-        do {
-            printf("Введите элемент [%zu] массива (от -15 до 15) = ", i);
-            value = Value();
-
-            if (value < -15 || value >15) {
-                printf("Ошибка: число должно быть в диапазоне (от -15 до 15)!\n");
-            }
-        } while (value < -15 || value >15);
-
-        arr[i] = value;
+        printf("Введите элемент [%zu] массива = ", i);
+        arr[i] = Value();
     }
 }
 
@@ -250,7 +253,6 @@ void replaceOddIndexElements(int* arr, const size_t size)
 int PositiveDivisibleWithRemainder2(const int* arr, const size_t size, int k)
 {
     CheckNullPointer(arr, "PositiveDivisibleWithRemainder2", "arr");
-    CheckNullPointer(k, "PositiveDivisibleWithRemainder2", "k");
     int found = 0;
     for (size_t i = 0; i < size; i++)
     {
