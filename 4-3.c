@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #define scanf_s scanf
 /**
  * @brief Считывает значение, введенное с клавиатуры с проверкой ввода
@@ -115,7 +116,7 @@ int main()
         default:
             printf("Ошибка!\n");
             freeArray(arr, rows);
-            break;
+            exit(1);
     }
     printf("Исходный массив:\n");
     printArray(arr, rows, columns);
@@ -185,6 +186,7 @@ void printArray(int** arr, const size_t rows, const size_t columns)
 void fillRandom(int** arr, const size_t rows, const size_t columns)
 {
     printf("Введите начало диапазона случайных чисел: ");
+    srand(time(NULL));
     int start = Value();
     printf("Введите конец диапазона случайных чисел: ");
     int end = Value();
